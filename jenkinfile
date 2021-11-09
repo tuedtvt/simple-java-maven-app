@@ -48,9 +48,10 @@ pipeline {
                 '''
             }
         }
-        
+
         stage('sonar-scanner') {
             steps{
+                def sonarqubeScannerHome = tool name: 'sonar', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                 sh "echo 1234"
             }
         }

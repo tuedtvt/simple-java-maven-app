@@ -3,7 +3,7 @@ pipeline {
     agent any
     
     environment {
-        //PASS = credentials('registry-pass') 
+        PASS = credentials('dockerpassfortuedtvt') 
         WORKSPACE = "/Volumes/MacintoshHD/docker/jenkins_home/workspace/pipelinedockermaven"
     }
 
@@ -37,6 +37,15 @@ pipeline {
                 always {
                     junit 'target/surefire-reports/*.xml'
                 }
+            }
+        }
+        stage('Push') {
+            steps {
+                sh '''
+                docker login -u tuedtvt -p $PASS
+                docker tag pipeline-maven-project:latest tuedtvt/pipeline-maven-project:latest
+                docker push tuedtvt/pipeline-maven-project:latest
+                '''
             }
         }
 

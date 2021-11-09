@@ -27,5 +27,24 @@ pipeline {
             }
 
         }
+
+        stage('Test') {
+            steps {
+                sh '''
+                docker run --rm  -v  $WORKSPACE:/app -v $WORKSPACE/root/.m2/:/root/.m2/ -w /app maven:3.5.4-alpine mvn test
+                '''
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
+
+            post {
+                always {
+                    junit 'java-app/target/surefire-reports/*.xml'
+                }
+            }
+        }
     }
 }

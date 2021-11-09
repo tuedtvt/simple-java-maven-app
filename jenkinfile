@@ -53,7 +53,7 @@ pipeline {
         stage('sonar-scanner') {
             steps{
                 withCredentials([string(credentialsId: 'sonar', variable: 'sonarLogin')]) { // sonarqube:9000 neu chay jenkin chung trong docker compose vi jenkin install o may local nen la localhost
-                    sh "${sonarqubeScannerHome}/bin/sonar-scanner -e -Dsonar.host.url=http://127.0.0.1:9000 -Dsonar.login=${sonarLogin} -Dsonar.projectName=gs-gradle -Dsonar.projectVersion=${env.BUILD_NUMBER} -Dsonar.projectKey=GS -Dsonar.sources=complete/src/main/ -Dsonar.tests=complete/src/test/ -Dsonar.language=java -Dsonar.java.binaries=."
+                    sh "${sonarqubeScannerHome}/bin/sonar-scanner -e -Dsonar.host.url=http://host.docker.internal:9000 -Dsonar.login=${sonarLogin} -Dsonar.projectName=gs-gradle -Dsonar.projectVersion=${env.BUILD_NUMBER} -Dsonar.projectKey=GS -Dsonar.sources=complete/src/main/ -Dsonar.tests=complete/src/test/ -Dsonar.language=java -Dsonar.java.binaries=."
                 }
                 sh "echo 1234"
             }

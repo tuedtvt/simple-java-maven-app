@@ -13,7 +13,14 @@ pipeline {
             steps {
                 sh '''
                     docker run --rm  -v  $WORKSPACE:/app -v $WORKSPACE/root/.m2/:/root/.m2/ -w /app maven:3.5.4-alpine mvn -B -DskipTests clean package
+                    cp -f $WORKSPACE/target/*.jar $WORKSPACE/
+                    docker build -f dockerfile -t pipeline-maven-project:latest              
                 '''
+            }
+            post {
+                success {
+                   archiveArtifacts artifacts: '/target/*.jar', fingerprint: true
+                }
             }
 
         }

@@ -19,6 +19,9 @@ pipeline {
             }
             post {
                 success {
+                    sh '''
+                    echo $PWD
+                    '''
                    archiveArtifacts artifacts: '$PWD/target/*.jar', fingerprint: true
                 }
             }

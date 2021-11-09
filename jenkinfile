@@ -4,7 +4,7 @@ pipeline {
     
     environment {
         //PASS = credentials('registry-pass') 
-        WORKSPACE = "/var/jenkins_home/workspace/pipeline-docker-maven"
+        WORKSPACE = "/var/jenkins_home/workspace/pipelinedockermaven"
     }
 
     stages {
@@ -12,7 +12,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    docker run --rm  -v  /var/jenkins_home/workspace/pipeline-docker-maven:/app -v $WORKSPACE/root/.m2/:/root/.m2/ -w /app maven:3-alpine mvn -B -DskipTests clean package
+                    docker run --rm  -v  /var/jenkins_home/workspace/pipelinedockermaven:/app -v $WORKSPACE/root/.m2/:/root/.m2/ -w /app maven:3-alpine mvn -B -DskipTests clean package
                 '''
             }
 

@@ -27,8 +27,7 @@ pipeline {
             }
 
         }
-
-        stage('Test') {
+         stage('Test') {
             steps {
                 sh '''
                 docker run --rm  -v  $WORKSPACE:/app -v $WORKSPACE/root/.m2/:/root/.m2/ -w /app maven:3.5.4-alpine mvn test
@@ -46,5 +45,7 @@ pipeline {
                 }
             }
         }
+
+       
     }
 }

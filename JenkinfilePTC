@@ -1,0 +1,63 @@
+pipeline {
+
+    agent any
+    
+    environment {
+        PASS = credentials('dockerpassfortuedtvt') 
+        WORKSPACE = "/Volumes/MacintoshHD/docker/jenkins_home/workspace/pipelinedockermaven"
+        sonarqubeScannerHome = tool name: 'sonar', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+    }
+
+    stages {
+
+        stage('Build') {
+            steps {
+                sh '''
+                    docker run --rm  -v  $WORKSPACE:/app -v $WORKSPACE/root/.m2/:/root/.m2/ -w /app maven:3.5.4-alpine mvn -B -DskipTests clean package
+                    cp -f $PWD/target/*.jar $PWD/
+                    docker build -f dockerfile -t pipeline-maven-project:latest .         
+                '''
+            }
+            post {
+                success {
+                    sh '''
+                    echo $PWD
+                    '''
+                   archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                }
+            }
+
+        }
+         stage('Test') {
+            steps {
+                sh '''
+                docker run --rm  -v  $WORKSPACE:/app -v $WORKSPACE/root/.m2/:/root/.m2/ -w /app maven:3.5.4-alpine mvn test
+                '''
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+        stage('Push') {
+            steps {
+                sh '''
+                docker login -u tuedtvt -p $PASS
+                docker tag pipeline-maven-project:latest tuedtvt/pipeline-maven-project:latest
+                docker push tuedtvt/pipeline-maven-project:latest
+                '''
+            }
+        }
+
+        stage('sonar-scanner') {
+            steps{
+                withCredentials([string(credentialsId: 'sonar', variable: 'sonarLogin')]) { // sonarqube:9000 neu chay jenkin chung trong docker compose vi jenkin install o may local nen la localhost
+                    sh "${sonarqubeScannerHome}/bin/sonar-scanner -e -Dsonar.host.url=http://host.docker.internal:9000 -Dsonar.login=${sonarLogin} -Dsonar.projectName=gs-gradle -Dsonar.projectVersion=${env.BUILD_NUMBER} -Dsonar.projectKey=GS -Dsonar.sources=src/main/ -Dsonar.tests=src/test/ -Dsonar.language=java -Dsonar.java.binaries=."
+                }
+                sh "echo 1234"
+            }
+        }
+
+    }
+}
